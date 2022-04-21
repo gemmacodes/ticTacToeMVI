@@ -1,4 +1,4 @@
-# ticTacToe
+# TicTacToe
 
 TicTacToe skeleton code for MVICore learning exercise.
 
