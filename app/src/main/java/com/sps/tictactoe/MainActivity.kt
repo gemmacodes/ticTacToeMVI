@@ -15,15 +15,12 @@ import androidx.compose.runtime.rxjava2.subscribeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.sps.tictactoe.MainActivity.ViewModel.CellState.EMPTY
-import com.sps.tictactoe.MainActivity.ViewModel.CellState.O
-import com.sps.tictactoe.MainActivity.ViewModel.CellState.X
 import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
 import com.sps.tictactoe.ui.theme.TicTacToeTheme
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
@@ -53,24 +50,10 @@ class MainActivity : ComponentActivity() {
             val c9: CellState = EMPTY, //Index 8
         ) {
             fun asCellList() = listOf(c1, c2, c3, c4, c5, c6, c7, c8, c9)
-
-            fun changeStateForIndex(index: Int): Board {
-                return this.copy(
-                    c1 = if (index == 0) CellState.values()[Random.nextInt(3)] else c1,
-                    c2 = if (index == 1) CellState.values()[Random.nextInt(3)] else c2,
-                    c3 = if (index == 2) CellState.values()[Random.nextInt(3)] else c3,
-                    c4 = if (index == 3) CellState.values()[Random.nextInt(3)] else c4,
-                    c5 = if (index == 4) CellState.values()[Random.nextInt(3)] else c5,
-                    c6 = if (index == 5) CellState.values()[Random.nextInt(3)] else c6,
-                    c7 = if (index == 6) CellState.values()[Random.nextInt(3)] else c7,
-                    c8 = if (index == 7) CellState.values()[Random.nextInt(3)] else c8,
-                    c9 = if (index == 8) CellState.values()[Random.nextInt(3)] else c9,
-                )
-            }
         }
 
-        enum class CellState(val textValue: String) {
-            EMPTY("X"), X("X"), O("O");
+        enum class CellState {
+            EMPTY, X, O;
         }
 
         data class GameCounter(
@@ -82,12 +65,6 @@ class MainActivity : ComponentActivity() {
 
     private val featureState = TicTacToeFeature()
     private val viewModelObservable = featureState.wrapToObservable().map(::mapViewModel)
-    private val newsObservable = featureState.news.wrapToObservable().subscribe {
-        //TODO: Handle your news here
-        when(it){
-            TicTacToeFeature.News.SomeNews -> Toast.makeText(this, "News Received", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun mapViewModel(state: TicTacToeFeature.State): ViewModel {
         //TODO: map your state to the expectedViewModel here
@@ -125,7 +102,7 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         GameBoard(board = boardState.value) {
-                            boardState.value = boardState.value.changeStateForIndex(it)
+                            onCellClicked(it)
                         }
                         ResetButton(::onResetClicked)
                         GameCounter(gameCounter = counterState.value)
