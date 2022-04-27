@@ -11,8 +11,8 @@ import com.sps.tictactoe.TicTacToeFeature.State.GameStatus
 import com.sps.tictactoe.TicTacToeFeature.Wish.MakeMove
 import com.sps.tictactoe.TicTacToeFeature.Wish.ResetGame
 import com.sps.tictactoe.TicTacToeVM.GameCounter
-import com.sps.tictactoe.TicTacToeVM.PlayingState
-import com.sps.tictactoe.TicTacToeVM.PlayingState.*
+import com.sps.tictactoe.TicTacToeVM.PlayedBy
+import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
 
 /**
@@ -33,11 +33,11 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
 ) {
 
     data class State(
-        val cellList: List<PlayingState> = listOf(
+        val boardAsList: List<PlayedBy> = listOf(
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY
         ),
         val gameStatus: GameStatus = GameStatus.READY,
-        val currentPlayer: PlayingState = X,
+        val currentPlayer: PlayedBy = X,
         val gameResult: GameResult? = null,
         val gameCounter: GameCounter = GameCounter()
     ) {
@@ -47,7 +47,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
     sealed class Effect {
         object ResetGameEffect : Effect()
-        data class MoveEffect(val index: Int, val player: PlayingState) : Effect()
+        data class MoveEffect(val index: Int, val player: PlayedBy) : Effect()
         data class ResultEffect(val result: State.GameResult) : Effect()
     }
 
@@ -82,7 +82,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
         private fun makeMove(state: State, action: MakeMove): Observable<out Effect> {
             return if (state.gameStatus != GameStatus.FINISHED
-                && state.cellList[action.index] == EMPTY
+                && state.boardAsList[action.index] == EMPTY
             ) {
                 Observable.just(
                     MoveEffect(index = action.index, player = state.currentPlayer),
@@ -99,24 +99,24 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
              *   |6|7|8|
              */
 
-            val resultWin = mutableListOf<List<PlayingState?>>().apply {
-                add(listOf(state.cellList[0], state.cellList[1], state.cellList[2]))
-                add(listOf(state.cellList[3], state.cellList[4], state.cellList[5]))
-                add(listOf(state.cellList[6], state.cellList[7], state.cellList[8]))
-                add(listOf(state.cellList[0], state.cellList[3], state.cellList[6]))
-                add(listOf(state.cellList[1], state.cellList[4], state.cellList[7]))
-                add(listOf(state.cellList[2], state.cellList[5], state.cellList[8]))
-                add(listOf(state.cellList[0], state.cellList[4], state.cellList[8]))
-                add(listOf(state.cellList[2], state.cellList[4], state.cellList[6]))
+            val resultWin = mutableListOf<List<PlayedBy?>>().apply {
+                add(listOf(state.boardAsList[0], state.boardAsList[1], state.boardAsList[2]))
+                add(listOf(state.boardAsList[3], state.boardAsList[4], state.boardAsList[5]))
+                add(listOf(state.boardAsList[6], state.boardAsList[7], state.boardAsList[8]))
+                add(listOf(state.boardAsList[0], state.boardAsList[3], state.boardAsList[6]))
+                add(listOf(state.boardAsList[1], state.boardAsList[4], state.boardAsList[7]))
+                add(listOf(state.boardAsList[2], state.boardAsList[5], state.boardAsList[8]))
+                add(listOf(state.boardAsList[0], state.boardAsList[4], state.boardAsList[8]))
+                add(listOf(state.boardAsList[2], state.boardAsList[4], state.boardAsList[6]))
             }
-                .any { possibility -> possibility.all { if (state.currentPlayer == O) it == X else it == O } }
+                .firstOrNull { combination -> combination.all { it == X } || combination.all { it == O } }?.first()
 
             val resultDraw =
-                !resultWin && state.cellList.all { it == O || it == X }
+                resultWin == null && state.boardAsList.none { it == EMPTY }
 
             return when {
-                resultWin && state.currentPlayer == O -> State.GameResult.XWINS
-                resultWin && state.currentPlayer == X -> State.GameResult.OWINS
+                resultWin == X -> State.GameResult.XWINS
+                resultWin == O -> State.GameResult.OWINS
                 resultDraw -> State.GameResult.DRAW
                 else -> null
             }
@@ -138,12 +138,12 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
                 is MoveEffect -> {
 
-                    val mutable = state.cellList.toMutableList()
+                    val mutable = state.boardAsList.toMutableList()
                     mutable[effect.index] = effect.player
                     val updatedCellList = mutable.toList()
 
                     state.copy(
-                        cellList = updatedCellList,
+                        boardAsList = updatedCellList,
                         gameStatus = GameStatus.ONGOING,
                         currentPlayer = if (state.currentPlayer == X) O else X
                     )

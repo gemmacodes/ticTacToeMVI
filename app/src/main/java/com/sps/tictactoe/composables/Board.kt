@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
-import com.sps.tictactoe.MainActivity
 import com.sps.tictactoe.TicTacToeVM
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -51,7 +50,7 @@ fun GameBoard(board: TicTacToeVM.Board, onCellClicked: (Int) -> Unit) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BoardCell(content: TicTacToeVM.PlayingState, onCellClicked: () -> Unit) {
+fun BoardCell(content: TicTacToeVM.PlayedBy, onCellClicked: () -> Unit) {
     Card(
         modifier = Modifier
             .border(
@@ -67,10 +66,10 @@ fun BoardCell(content: TicTacToeVM.PlayingState, onCellClicked: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             when (content) {
-                TicTacToeVM.PlayingState.EMPTY -> { /* NoOp */
+                TicTacToeVM.PlayedBy.EMPTY -> { /* NoOp */
                 }
-                TicTacToeVM.PlayingState.X -> PieceX()
-                TicTacToeVM.PlayingState.O -> PieceO()
+                TicTacToeVM.PlayedBy.X -> PieceX()
+                TicTacToeVM.PlayedBy.O -> PieceO()
             }
         }
     }

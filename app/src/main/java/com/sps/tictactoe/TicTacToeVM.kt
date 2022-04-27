@@ -1,6 +1,6 @@
 package com.sps.tictactoe
 
-import com.sps.tictactoe.TicTacToeVM.PlayingState.*
+import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 
 /**
  * This is a suggested TicTacToeVM.
@@ -19,20 +19,20 @@ data class TicTacToeVM (
      */
 
     data class Board(
-        val c1: PlayingState = EMPTY, //Index 0
-        val c2: PlayingState = EMPTY, //Index 1
-        val c3: PlayingState = EMPTY, //Index 2
-        val c4: PlayingState = EMPTY, //Index 3
-        val c5: PlayingState = EMPTY, //Index 4
-        val c6: PlayingState = EMPTY, //Index 5
-        val c7: PlayingState = EMPTY, //Index 6
-        val c8: PlayingState = EMPTY, //Index 7
-        val c9: PlayingState = EMPTY, //Index 8
+        val c1: PlayedBy = EMPTY, //Index 0
+        val c2: PlayedBy = EMPTY, //Index 1
+        val c3: PlayedBy = EMPTY, //Index 2
+        val c4: PlayedBy = EMPTY, //Index 3
+        val c5: PlayedBy = EMPTY, //Index 4
+        val c6: PlayedBy = EMPTY, //Index 5
+        val c7: PlayedBy = EMPTY, //Index 6
+        val c8: PlayedBy = EMPTY, //Index 7
+        val c9: PlayedBy = EMPTY, //Index 8
     ) {
         fun asCellList() = listOf(c1, c2, c3, c4, c5, c6, c7, c8, c9)
     }
 
-    enum class PlayingState {
+    enum class PlayedBy {
         EMPTY, X, O;
     }
 

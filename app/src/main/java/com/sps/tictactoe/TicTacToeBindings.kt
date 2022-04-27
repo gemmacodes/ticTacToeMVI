@@ -1,13 +1,10 @@
 package com.sps.tictactoe
 
-import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import com.badoo.binder.using
 import com.badoo.mvicore.android.AndroidBindings
-import com.sps.tictactoe.MainActivity.*
 import com.sps.tictactoe.TicTacToeFeature.*
 import com.sps.tictactoe.TicTacToeFeature.News.*
-import com.sps.tictactoe.TicTacToeFeature.State.*
 import com.sps.tictactoe.TicTacToeFeature.Wish.*
 import com.sps.tictactoe.TicTacToeUiEvent.*
 import io.reactivex.functions.Consumer
@@ -24,15 +21,15 @@ internal class TicTacToeBindings(
         override fun invoke(state: State): TicTacToeVM =
             TicTacToeVM(
                 board = TicTacToeVM.Board(
-                    c1 = state.cellList[0],
-                    c2 = state.cellList[1],
-                    c3 = state.cellList[2],
-                    c4 = state.cellList[3],
-                    c5 = state.cellList[4],
-                    c6 = state.cellList[5],
-                    c7 = state.cellList[6],
-                    c8 = state.cellList[7],
-                    c9 = state.cellList[8],
+                    c1 = state.boardAsList[0],
+                    c2 = state.boardAsList[1],
+                    c3 = state.boardAsList[2],
+                    c4 = state.boardAsList[3],
+                    c5 = state.boardAsList[4],
+                    c6 = state.boardAsList[5],
+                    c7 = state.boardAsList[6],
+                    c8 = state.boardAsList[7],
+                    c9 = state.boardAsList[8],
                 ),
                 gameCounter = TicTacToeVM.GameCounter(
                     xWins = state.gameCounter.xWins,
