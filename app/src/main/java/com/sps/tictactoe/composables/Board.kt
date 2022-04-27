@@ -27,10 +27,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.sps.tictactoe.MainActivity
+import com.sps.tictactoe.TicTacToeVM
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun GameBoard(board: MainActivity.ViewModel.Board, onCellClicked: (Int) -> Unit) {
+fun GameBoard(board: TicTacToeVM.Board, onCellClicked: (Int) -> Unit) {
     val cells = board.asCellList()
     LazyVerticalGrid(
         modifier = Modifier.padding(10.dp),
@@ -50,7 +51,7 @@ fun GameBoard(board: MainActivity.ViewModel.Board, onCellClicked: (Int) -> Unit)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BoardCell(content: MainActivity.ViewModel.PlayingState, onCellClicked: () -> Unit) {
+fun BoardCell(content: TicTacToeVM.PlayingState, onCellClicked: () -> Unit) {
     Card(
         modifier = Modifier
             .border(
@@ -66,10 +67,10 @@ fun BoardCell(content: MainActivity.ViewModel.PlayingState, onCellClicked: () ->
             contentAlignment = Alignment.Center,
         ) {
             when (content) {
-                MainActivity.ViewModel.PlayingState.EMPTY -> { /* NoOp */
+                TicTacToeVM.PlayingState.EMPTY -> { /* NoOp */
                 }
-                MainActivity.ViewModel.PlayingState.X -> PieceX()
-                MainActivity.ViewModel.PlayingState.O -> PieceO()
+                TicTacToeVM.PlayingState.X -> PieceX()
+                TicTacToeVM.PlayingState.O -> PieceO()
             }
         }
     }

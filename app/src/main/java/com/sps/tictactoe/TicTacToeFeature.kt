@@ -1,16 +1,18 @@
 package com.sps.tictactoe
 
 import com.badoo.mvicore.element.Actor
+import com.badoo.mvicore.element.NewsPublisher
 import com.badoo.mvicore.element.PostProcessor
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
-import com.sps.tictactoe.MainActivity.ViewModel.GameCounter
-import com.sps.tictactoe.MainActivity.ViewModel.PlayingState
 import com.sps.tictactoe.TicTacToeFeature.*
 import com.sps.tictactoe.TicTacToeFeature.Effect.*
 import com.sps.tictactoe.TicTacToeFeature.State.GameStatus
 import com.sps.tictactoe.TicTacToeFeature.Wish.MakeMove
 import com.sps.tictactoe.TicTacToeFeature.Wish.ResetGame
+import com.sps.tictactoe.TicTacToeVM.GameCounter
+import com.sps.tictactoe.TicTacToeVM.PlayingState
+import com.sps.tictactoe.TicTacToeVM.PlayingState.*
 import io.reactivex.Observable
 
 /**
@@ -27,23 +29,15 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     postProcessor = PostProcessorImpl(),
     wishToAction = Action::Execute,
     actor = ActorImpl(),
-//    newsPublisher = NewsPublisherImpl()
+    newsPublisher = NewsPublisherImpl()
 ) {
 
     data class State(
         val cellList: List<PlayingState> = listOf(
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY,
-            PlayingState.EMPTY
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY
         ),
         val gameStatus: GameStatus = GameStatus.READY,
-        val currentPlayer: PlayingState = PlayingState.X,
+        val currentPlayer: PlayingState = X,
         val gameResult: GameResult? = null,
         val gameCounter: GameCounter = GameCounter()
     ) {
@@ -68,7 +62,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     }
 
     sealed class News {
-        object ResultNews : News()
+        data class ResultNews(val result: State.GameResult) : News()
     }
 
     private class ActorImpl : Actor<State, Action, Effect> {
@@ -86,11 +80,13 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
             }
         }
 
-        private fun makeMove(state: State, action: MakeMove): Observable<MoveEffect> {
+        private fun makeMove(state: State, action: MakeMove): Observable<out Effect> {
             return if (state.gameStatus != GameStatus.FINISHED
-                && state.cellList[action.index] == PlayingState.EMPTY
+                && state.cellList[action.index] == EMPTY
             ) {
-                Observable.just(MoveEffect(index = action.index, player = state.currentPlayer))
+                Observable.just(
+                    MoveEffect(index = action.index, player = state.currentPlayer),
+                )
             } else {
                 Observable.empty()
             }
@@ -102,6 +98,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
              *   |3|4|5|
              *   |6|7|8|
              */
+
             val resultWin = mutableListOf<List<PlayingState?>>().apply {
                 add(listOf(state.cellList[0], state.cellList[1], state.cellList[2]))
                 add(listOf(state.cellList[3], state.cellList[4], state.cellList[5]))
@@ -112,14 +109,14 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 add(listOf(state.cellList[0], state.cellList[4], state.cellList[8]))
                 add(listOf(state.cellList[2], state.cellList[4], state.cellList[6]))
             }
-                .any { possibility -> possibility.all { if (state.currentPlayer == PlayingState.O) it == PlayingState.X else it == PlayingState.O } }
+                .any { possibility -> possibility.all { if (state.currentPlayer == O) it == X else it == O } }
 
             val resultDraw =
-                !resultWin && state.cellList.all { it == PlayingState.O || it == PlayingState.X }
+                !resultWin && state.cellList.all { it == O || it == X }
 
             return when {
-                resultWin && state.currentPlayer == PlayingState.O -> State.GameResult.XWINS
-                resultWin && state.currentPlayer == PlayingState.X -> State.GameResult.OWINS
+                resultWin && state.currentPlayer == O -> State.GameResult.XWINS
+                resultWin && state.currentPlayer == X -> State.GameResult.OWINS
                 resultDraw -> State.GameResult.DRAW
                 else -> null
             }
@@ -148,7 +145,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                     state.copy(
                         cellList = updatedCellList,
                         gameStatus = GameStatus.ONGOING,
-                        currentPlayer = if (state.currentPlayer == PlayingState.X) PlayingState.O else PlayingState.X
+                        currentPlayer = if (state.currentPlayer == X) O else X
                     )
                 }
 
@@ -175,23 +172,19 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 )
 
                 is ResetGameEffect -> State().copy(
-                    gameCounter = GameCounter(
-                        xWins = state.gameCounter.xWins,
-                        oWins = state.gameCounter.oWins,
-                        draws = state.gameCounter.draws
+                    gameCounter = state.gameCounter
                     )
-                )
             }
         }
     }
 
 
-//    private class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
-//        override fun invoke(action: Action, effect: Effect, state: State): News = when (effect) {
-//            ResetGameEffect -> TODO()
-//            else -> TODO()
-//        }
-//    }
+    private class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
+        override fun invoke(action: Action, effect: Effect, state: State): News? = when (effect) {
+            is ResultEffect -> News.ResultNews(effect.result)
+            else -> null
+        }
+    }
 
 
 }

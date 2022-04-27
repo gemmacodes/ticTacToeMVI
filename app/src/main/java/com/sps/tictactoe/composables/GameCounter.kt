@@ -14,10 +14,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sps.tictactoe.MainActivity
+import com.sps.tictactoe.TicTacToeVM
 
 @Composable
 fun GameCounter(
-    gameCounter: MainActivity.ViewModel.GameCounter,
+    gameCounter: TicTacToeVM.GameCounter,
     drawColor: Color = Color.White,
     xColor: Color = Color.Red,
     oColor: Color = Color.Cyan
