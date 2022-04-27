@@ -15,13 +15,6 @@ import com.sps.tictactoe.TicTacToeVM.PlayedBy
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
 
-/**
- * Complete State and feature with required logic..
- * Right now this is extending ActorReducerFeature. Feel Free To change it if you need it.
- * This is just an example, so if you don't need something, feel free to delete it.
- * E.g: You don't need the News? Delete them and pass <Nothing> instead as News Type
- * ActorReducerFeature<Wish, Effect, State, Nothing>
- */
 
 class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
@@ -45,12 +38,6 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         enum class GameResult { XWINS, OWINS, DRAW }
     }
 
-    sealed class Effect {
-        object ResetGameEffect : Effect()
-        data class MoveEffect(val index: Int, val player: PlayedBy) : Effect()
-        data class ResultEffect(val result: State.GameResult) : Effect()
-    }
-
     sealed class Wish {
         object ResetGame : Wish()
         data class MakeMove(val index: Int) : Wish()
@@ -59,6 +46,14 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     sealed class Action {
         data class Execute(val wish: Wish) : Action()
         object CheckBoard : Action()
+        object ChangePlayer : Action()
+    }
+
+    sealed class Effect {
+        object ResetGameEffect : Effect()
+        data class MoveEffect(val index: Int, val player: PlayedBy) : Effect()
+        data class ResultEffect(val result: State.GameResult) : Effect()
+        data class ChangePlayerEffect(val player: PlayedBy) : Effect()
     }
 
     sealed class News {
@@ -75,8 +70,16 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                         makeMove(state, action.wish)
                     }
                 }
-                is Action.CheckBoard -> checkBoard(state)?.let { Observable.just(ResultEffect(it)) }
-                    ?: Observable.empty()
+                is Action.CheckBoard ->
+                    checkBoard(state)?.let {
+                        Observable.merge(
+                            Observable.just(ResultEffect(it)),
+                            Observable.just(ChangePlayerEffect(state.currentPlayer))
+                        )
+                    }
+                        ?: Observable.just(ChangePlayerEffect(state.currentPlayer))
+
+                is Action.ChangePlayer -> Observable.just(ChangePlayerEffect(state.currentPlayer))
             }
         }
 
@@ -84,9 +87,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
             return if (state.gameStatus != GameStatus.FINISHED
                 && state.boardAsList[action.index] == EMPTY
             ) {
-                Observable.just(
-                    MoveEffect(index = action.index, player = state.currentPlayer),
-                )
+                Observable.just(MoveEffect(index = action.index, player = state.currentPlayer))
             } else {
                 Observable.empty()
             }
@@ -109,7 +110,8 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 add(listOf(state.boardAsList[0], state.boardAsList[4], state.boardAsList[8]))
                 add(listOf(state.boardAsList[2], state.boardAsList[4], state.boardAsList[6]))
             }
-                .firstOrNull { combination -> combination.all { it == X } || combination.all { it == O } }?.first()
+                .firstOrNull { combination -> combination.all { it == X } || combination.all { it == O } }
+                ?.first()
 
             val resultDraw =
                 resultWin == null && state.boardAsList.none { it == EMPTY }
@@ -145,35 +147,31 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                     state.copy(
                         boardAsList = updatedCellList,
                         gameStatus = GameStatus.ONGOING,
-                        currentPlayer = if (state.currentPlayer == X) O else X
                     )
                 }
+
+                is ChangePlayerEffect -> state.copy(
+                    currentPlayer = if (state.currentPlayer == X) O else X
+                )
 
                 is ResultEffect -> state.copy(
                     gameStatus = GameStatus.FINISHED,
                     gameResult = effect.result,
                     gameCounter = when (effect.result) {
-                        State.GameResult.XWINS -> GameCounter(
-                            xWins = state.gameCounter.xWins + 1,
-                            oWins = state.gameCounter.oWins,
-                            draws = state.gameCounter.draws
+                        State.GameResult.XWINS -> state.gameCounter.copy(
+                            xWins = state.gameCounter.xWins + 1
                         )
-                        State.GameResult.OWINS -> GameCounter(
-                            xWins = state.gameCounter.xWins,
-                            oWins = state.gameCounter.oWins + 1,
-                            draws = state.gameCounter.draws
+                        State.GameResult.OWINS -> state.gameCounter.copy(
+                            oWins = state.gameCounter.oWins + 1
                         )
-                        State.GameResult.DRAW -> GameCounter(
-                            xWins = state.gameCounter.xWins,
-                            oWins = state.gameCounter.oWins,
-                            draws = state.gameCounter.draws + 1
-                        )
+                        State.GameResult.DRAW -> state.gameCounter.copy(
+                            draws = state.gameCounter.draws + 1)
                     }
                 )
 
                 is ResetGameEffect -> State().copy(
                     gameCounter = state.gameCounter
-                    )
+                )
             }
         }
     }
