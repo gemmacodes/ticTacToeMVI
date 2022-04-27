@@ -50,7 +50,7 @@ fun GameBoard(board: MainActivity.ViewModel.Board, onCellClicked: (Int) -> Unit)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BoardCell(content: MainActivity.ViewModel.CellState, onCellClicked: () -> Unit) {
+fun BoardCell(content: MainActivity.ViewModel.PlayingState, onCellClicked: () -> Unit) {
     Card(
         modifier = Modifier
             .border(
@@ -66,10 +66,10 @@ fun BoardCell(content: MainActivity.ViewModel.CellState, onCellClicked: () -> Un
             contentAlignment = Alignment.Center,
         ) {
             when (content) {
-                MainActivity.ViewModel.CellState.EMPTY -> { /* NoOp */
+                MainActivity.ViewModel.PlayingState.EMPTY -> { /* NoOp */
                 }
-                MainActivity.ViewModel.CellState.X -> PieceX()
-                MainActivity.ViewModel.CellState.O -> PieceO()
+                MainActivity.ViewModel.PlayingState.X -> PieceX()
+                MainActivity.ViewModel.PlayingState.O -> PieceO()
             }
         }
     }
