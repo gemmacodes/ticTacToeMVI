@@ -41,10 +41,11 @@ internal class TicTacToeBindings(
     object UiEventTransformer : (TicTacToeUiEvent) -> Wish {
         override fun invoke(event: TicTacToeUiEvent): Wish =
             when (event) {
-                is CellClicked -> MakeMove(event.index)
+                is CellClicked -> HumanMove(event.index)
                 is ResetClicked -> ResetGame
             }
     }
+
 
     override fun setup(view: MainActivity) {
         binder.bind(feature to view using featureStateToViewModel)

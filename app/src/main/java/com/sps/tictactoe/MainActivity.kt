@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
     }
 
     private fun onCellClicked(cellIndex: Int) {
-        // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.MakeMove(cellIndex))
+        // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HumanMove(cellIndex))
         subject.onNext(CellClicked(cellIndex))
     }
 
