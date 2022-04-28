@@ -7,7 +7,7 @@ import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
 import com.sps.tictactoe.TicTacToeFeature.*
 import com.sps.tictactoe.TicTacToeFeature.Effect.*
-import com.sps.tictactoe.TicTacToeFeature.State.GameStatus
+import com.sps.tictactoe.TicTacToeFeature.State.GameStatus.*
 import com.sps.tictactoe.TicTacToeFeature.Wish.MakeMove
 import com.sps.tictactoe.TicTacToeFeature.Wish.ResetGame
 import com.sps.tictactoe.TicTacToeVM.GameCounter
@@ -22,14 +22,14 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     postProcessor = PostProcessorImpl(),
     wishToAction = Action::Execute,
     actor = ActorImpl(),
-    newsPublisher = NewsPublisherImpl()
+    newsPublisher = NewsPublisherImpl(),
 ) {
 
     data class State(
         val boardAsList: List<PlayedBy> = listOf(
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY
         ),
-        val gameStatus: GameStatus = GameStatus.READY,
+        val gameStatus: GameStatus = READY,
         val currentPlayer: PlayedBy = X,
         val gameResult: GameResult? = null,
         val gameCounter: GameCounter = GameCounter()
@@ -60,15 +60,13 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         data class ResultNews(val result: State.GameResult) : News()
     }
 
-    private class ActorImpl : Actor<State, Action, Effect> {
+    private class ActorImpl() : Actor<State, Action, Effect> {
 
         override fun invoke(state: State, action: Action): Observable<out Effect> {
             return when (action) {
                 is Action.Execute -> when (action.wish) {
                     is ResetGame -> Observable.just(ResetGameEffect)
-                    is MakeMove -> {
-                        makeMove(state, action.wish)
-                    }
+                    is MakeMove -> { makeMove(state, action.wish) }
                 }
                 is Action.CheckBoard ->
                     checkBoard(state)?.let {
@@ -84,8 +82,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         }
 
         private fun makeMove(state: State, action: MakeMove): Observable<out Effect> {
-            return if (state.gameStatus != GameStatus.FINISHED
-                && state.boardAsList[action.index] == EMPTY
+            return if (state.gameStatus != FINISHED && state.boardAsList[action.index] == EMPTY
             ) {
                 Observable.just(MoveEffect(index = action.index, player = state.currentPlayer))
             } else {
@@ -146,7 +143,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
                     state.copy(
                         boardAsList = updatedCellList,
-                        gameStatus = GameStatus.ONGOING,
+                        gameStatus = ONGOING,
                     )
                 }
 
@@ -155,7 +152,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 )
 
                 is ResultEffect -> state.copy(
-                    gameStatus = GameStatus.FINISHED,
+                    gameStatus = FINISHED,
                     gameResult = effect.result,
                     gameCounter = when (effect.result) {
                         State.GameResult.XWINS -> state.gameCounter.copy(

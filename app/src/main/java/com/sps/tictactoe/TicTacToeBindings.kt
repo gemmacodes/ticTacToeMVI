@@ -14,7 +14,6 @@ internal class TicTacToeBindings(
     private val feature: TicTacToeFeature,
     private val featureStateToViewModel: ViewModelTransformer,
     private val uiEventToWish: UiEventTransformer,
-    //private val newsTransformer: NewsTransformer,
 ) : AndroidBindings<MainActivity>(lifecycleOwner) {
 
     object ViewModelTransformer : (State) -> TicTacToeVM {
@@ -46,23 +45,6 @@ internal class TicTacToeBindings(
                 is ResetClicked -> ResetGame
             }
     }
-
-//    object NewsTransformer : (News) -> Unit {
-//        override fun invoke(news: News) {
-//            when (news) {
-//                ResultNews(GameResult.XWINS) -> Toast.makeText(this, "X wins!", Toast.LENGTH_SHORT)
-//                    .show()
-//                ResultNews(GameResult.OWINS) -> Toast.makeText(this, "O wins", Toast.LENGTH_SHORT)
-//                    .show()
-//                ResultNews(GameResult.DRAW) -> Toast.makeText(
-//                    this,
-//                    "It's a draw!",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                else -> {}
-//            }
-//        }
-//    }
 
     override fun setup(view: MainActivity) {
         binder.bind(feature to view using featureStateToViewModel)

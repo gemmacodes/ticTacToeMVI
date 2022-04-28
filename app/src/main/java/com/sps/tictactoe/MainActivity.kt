@@ -22,7 +22,6 @@ import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
 import com.sps.tictactoe.ui.theme.TicTacToeTheme
-import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.Observer
 import io.reactivex.functions.Consumer
@@ -37,8 +36,8 @@ class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
         this, featureState,
         ViewModelTransformer, UiEventTransformer
     )
-    private val subject: PublishSubject<TicTacToeUiEvent> = PublishSubject.create()
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
+    private val subject: PublishSubject<TicTacToeUiEvent> = PublishSubject.create()
 
     fun showResult(gameResult: GameResult) {
         when (gameResult) {
@@ -112,11 +111,6 @@ class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
         // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.MakeMove(cellIndex))
         subject.onNext(CellClicked(cellIndex))
     }
-
-    private fun <T> ObservableSource<out T>.wrapToObservable(): Observable<T> =
-        Observable.wrap(cast())
-
-    private inline fun <reified T> Any?.cast(): T = this as T
 
 }
 
