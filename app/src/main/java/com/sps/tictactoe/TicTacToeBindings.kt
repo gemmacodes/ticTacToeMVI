@@ -3,8 +3,9 @@ package com.sps.tictactoe
 import androidx.lifecycle.LifecycleOwner
 import com.badoo.binder.using
 import com.badoo.mvicore.android.AndroidBindings
-import com.sps.tictactoe.TicTacToeFeature.*
 import com.sps.tictactoe.TicTacToeFeature.News.*
+import com.sps.tictactoe.TicTacToeFeature.State
+import com.sps.tictactoe.TicTacToeFeature.Wish
 import com.sps.tictactoe.TicTacToeFeature.Wish.*
 import com.sps.tictactoe.TicTacToeUiEvent.*
 import io.reactivex.functions.Consumer
@@ -41,7 +42,7 @@ internal class TicTacToeBindings(
     object UiEventTransformer : (TicTacToeUiEvent) -> Wish {
         override fun invoke(event: TicTacToeUiEvent): Wish =
             when (event) {
-                is CellClicked -> HumanMove(event.index)
+                is CellClicked -> MakeMove(event.index)
                 is ResetClicked -> ResetGame
             }
     }
