@@ -4,13 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +30,7 @@ fun GameBoard(board: TicTacToeVM.Board, onCellClicked: (Int) -> Unit) {
         modifier = Modifier.padding(10.dp),
         cells = GridCells.Fixed(3),
         contentPadding = PaddingValues(vertical = 3.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     )
     {
@@ -59,7 +53,8 @@ fun BoardCell(content: TicTacToeVM.PlayedBy, onCellClicked: () -> Unit) {
             )
             .aspectRatio(1f),
         onClick = onCellClicked,
-    ) {
+
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -76,16 +71,22 @@ fun BoardCell(content: TicTacToeVM.PlayedBy, onCellClicked: () -> Unit) {
 }
 
 @Composable
-fun PieceO(color: Color = Color.Cyan) {
+fun PieceO(color: Color = Color.Blue) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val radius = (size.minDimension / 2)*0.70f
-        val stroke = radius*0.1f.dp.toPx()
+        val radius = (size.minDimension / 2) * 0.70f
+        val stroke = radius * 0.1f.dp.toPx()
         drawCircle(
             color = color,
             center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
             radius = radius,
+            style = Stroke(width = stroke)
+        )
+        drawCircle(
+            color = color,
+            center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
+            radius = (size.minDimension / 2) * 0.35f,
             style = Stroke(width = stroke)
         )
     }
@@ -96,19 +97,43 @@ fun PieceX(color: Color = Color.Red) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val rectH = canvasHeight*0.75f
-        val rectW = rectH*0.25f
-        rotate(45f){
+        val rectH = canvasHeight * 0.75f
+        val rectW = rectH * 0.25f
+        drawRect(
+            color = color,
+            topLeft = Offset(
+                x = (canvasWidth / 2F) - rectW / 2f,
+                y = (canvasHeight - rectH) / 2f
+            ),
+            size = Size(height = rectH, width = rectW)
+        )
+        rotate(45f) {
             drawRect(
                 color = color,
-                topLeft = Offset(x = (canvasWidth / 2F) - rectW/2f, y=(canvasHeight-rectH)/2f),
+                topLeft = Offset(
+                    x = (canvasWidth / 2F) - rectW / 2f,
+                    y = (canvasHeight - rectH) / 2f
+                ),
                 size = Size(height = rectH, width = rectW)
             )
         }
-        rotate(135f){
+        rotate(90f) {
             drawRect(
                 color = color,
-                topLeft = Offset(x = (canvasWidth / 2F) - rectW/2f, y=(canvasHeight-rectH)/2f),
+                topLeft = Offset(
+                    x = (canvasWidth / 2F) - rectW / 2f,
+                    y = (canvasHeight - rectH) / 2f
+                ),
+                size = Size(height = rectH, width = rectW)
+            )
+        }
+        rotate(135f) {
+            drawRect(
+                color = color,
+                topLeft = Offset(
+                    x = (canvasWidth / 2F) - rectW / 2f,
+                    y = (canvasHeight - rectH) / 2f
+                ),
                 size = Size(height = rectH, width = rectW)
             )
         }

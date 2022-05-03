@@ -14,13 +14,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.sps.tictactoe.TicTacToeBindings.*
+//import com.sps.tictactoe.TicTacToeBindings.*
 import com.sps.tictactoe.TicTacToeFeature.State.*
 import com.sps.tictactoe.TicTacToeFeature.State.GameResult.*
-import com.sps.tictactoe.TicTacToeUiEvent.*
+//import com.sps.tictactoe.TicTacToeUiEvent.*
 import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
+import com.sps.tictactoe.twoFeatures.DummyFeature
+import com.sps.tictactoe.twoFeatures.HumanFeature
+import com.sps.tictactoe.twoFeatures.HumanUiEvent
+import com.sps.tictactoe.twoFeatures.ManualBinder
 import com.sps.tictactoe.ui.theme.TicTacToeTheme
 import io.reactivex.ObservableSource
 import io.reactivex.Observer
@@ -28,32 +32,39 @@ import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 
 
-class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
+class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     Consumer<TicTacToeVM> {
 
-    private val featureState = TicTacToeFeature()
-    private val bindings = TicTacToeBindings(
-        this, featureState,
-        ViewModelTransformer, UiEventTransformer
+//    private val featureState = TicTacToeFeature()
+//    private val bindings = TicTacToeBindings(
+//        this, featureState,
+//        ViewModelTransformer, UiEventTransformer
+//    )
+
+    private val featureState = HumanFeature()
+    private val machineState = DummyFeature()
+    private val bindings = ManualBinder(
+        this, featureState, machineState, ManualBinder.ViewModelTransformer,
+        ManualBinder.UiEventTransformer
     )
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
-    private val subject: PublishSubject<TicTacToeUiEvent> = PublishSubject.create()
+    private val subject: PublishSubject<HumanUiEvent> = PublishSubject.create()
 
-    fun showResult(gameResult: GameResult) {
+    fun showResult(gameResult: HumanFeature.State.GameResult) {
         when (gameResult) {
-            XWINS -> Toast.makeText(
+            HumanFeature.State.GameResult.XWINS -> Toast.makeText(
                 this,
                 "Game over, X wins!",
                 Toast.LENGTH_SHORT
             )
                 .show()
-            OWINS -> Toast.makeText(
+            HumanFeature.State.GameResult.OWINS -> Toast.makeText(
                 this,
                 "Game over, O wins!",
                 Toast.LENGTH_SHORT
             )
                 .show()
-            DRAW -> Toast.makeText(
+            HumanFeature.State.GameResult.DRAW -> Toast.makeText(
                 this,
                 "Game over - It's a draw!",
                 Toast.LENGTH_SHORT
@@ -94,7 +105,7 @@ class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
         bindings.setup(this)
     }
 
-    override fun subscribe(observer: Observer<in TicTacToeUiEvent>) {
+    override fun subscribe(observer: Observer<in HumanUiEvent>) {
         subject.subscribe(observer)
     }
 
@@ -104,12 +115,12 @@ class MainActivity : ComponentActivity(), ObservableSource<TicTacToeUiEvent>,
 
     private fun onResetClicked() {
         // invoke whatever you need here to reset the feature: featureState.accept(TicTacToeFeature.Wish.ResetGame)
-        subject.onNext(ResetClicked)
+        subject.onNext(HumanUiEvent.ResetClicked)
     }
 
     private fun onCellClicked(cellIndex: Int) {
         // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HumanMove(cellIndex))
-        subject.onNext(CellClicked(cellIndex))
+        subject.onNext(HumanUiEvent.CellClicked(cellIndex))
     }
 
 }

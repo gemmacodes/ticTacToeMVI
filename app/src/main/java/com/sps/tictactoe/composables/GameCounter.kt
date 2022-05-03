@@ -19,9 +19,9 @@ import com.sps.tictactoe.TicTacToeVM
 @Composable
 fun GameCounter(
     gameCounter: TicTacToeVM.GameCounter,
-    drawColor: Color = Color.White,
+    drawColor: Color = Color.Black,
     xColor: Color = Color.Red,
-    oColor: Color = Color.Cyan
+    oColor: Color = Color.Blue
 ) {
     Row(
         modifier = Modifier.padding(20.dp),
@@ -29,8 +29,8 @@ fun GameCounter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SimpleCounter("Draws", gameCounter.draws, drawColor)
-        SimpleCounter("X Wins", gameCounter.xWins, xColor)
-        SimpleCounter("O Wins", gameCounter.oWins, oColor)
+        SimpleCounter("✳ Wins", gameCounter.xWins, xColor)
+        SimpleCounter("⭗ Wins", gameCounter.oWins, oColor)
     }
 }
 

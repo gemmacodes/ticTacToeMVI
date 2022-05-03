@@ -1,22 +1,18 @@
-package com.sps.tictactoe
+package com.sps.tictactoe.twoFeatures
 
 import com.badoo.mvicore.element.*
 import com.badoo.mvicore.feature.BaseFeature
-import com.sps.tictactoe.TicTacToeFeature.*
-import com.sps.tictactoe.TicTacToeFeature.Action.*
-import com.sps.tictactoe.TicTacToeFeature.Effect.*
-import com.sps.tictactoe.TicTacToeFeature.State.GameStatus.*
-import com.sps.tictactoe.TicTacToeFeature.Wish.HumanMove
-import com.sps.tictactoe.TicTacToeFeature.Wish.ResetGame
+import com.sps.tictactoe.twoFeatures.HumanFeature.*
+import com.sps.tictactoe.twoFeatures.HumanFeature.Effect.*
+import com.sps.tictactoe.twoFeatures.HumanFeature.State.GameStatus.*
+import com.sps.tictactoe.twoFeatures.HumanFeature.Wish.ResetGame
 import com.sps.tictactoe.TicTacToeVM.GameCounter
 import com.sps.tictactoe.TicTacToeVM.PlayedBy
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
 
-
-class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
+class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
-    bootstrapper = BootstrapperImpl(),
     reducer = ReducerImpl(),
     postProcessor = PostProcessorImpl(),
     wishToAction = Action::Execute,
@@ -29,7 +25,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY
         ),
         val gameStatus: GameStatus = READY,
-        val humanPlayer: Boolean = false,
+        val humanPlayer: Boolean = true,
         val gameResult: GameResult? = null,
         val gameCounter: GameCounter = GameCounter()
     ) {
@@ -40,13 +36,13 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     sealed class Wish {
         object ResetGame : Wish()
         data class HumanMove(val index: Int) : Wish()
+        data class EndMachineMove(val index: Int) : Wish()
     }
 
     sealed class Action {
         data class Execute(val wish: Wish) : Action()
         object CheckBoard : Action()
         object ChangePlayer : Action()
-        object MachineMove : Action()
     }
 
     sealed class Effect {
@@ -60,26 +56,22 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         data class ResultNews(val result: State.GameResult) : News()
     }
 
-    class BootstrapperImpl : Bootstrapper<Action> {
-        override fun invoke(): Observable<Action> =
-            Observable.just(MachineMove)
-    }
-
     private class ActorImpl : Actor<State, Action, Effect> {
 
         override fun invoke(state: State, action: Action): Observable<out Effect> {
             return when (action) {
 
-                is Execute -> when (action.wish) {
+                is Action.Execute -> when (action.wish) {
                     is ResetGame -> Observable.just(ResetGameEffect)
-                    is HumanMove -> {
+                    is Wish.HumanMove -> {
                         makeHumanMove(state, action.wish)
+                    }
+                    is Wish.EndMachineMove -> {
+                        Observable.just(MoveEffect(index = action.wish.index, player = O))
                     }
                 }
 
-                is MachineMove -> makeDummyMove(state)
-
-                is CheckBoard ->
+                is Action.CheckBoard ->
                     checkBoard(state)?.let {
                         Observable.merge(
                             Observable.just(ResultEffect(it)),
@@ -88,27 +80,14 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
                     }
                         ?: Observable.just(ChangePlayerEffect)
 
-                is ChangePlayer -> Observable.just(ChangePlayerEffect)
+                is Action.ChangePlayer -> Observable.just(ChangePlayerEffect)
             }
         }
 
-        private fun makeHumanMove(state: State, action: HumanMove): Observable<out Effect> {
+        private fun makeHumanMove(state: State, action: Wish.HumanMove): Observable<out Effect> {
             return if (state.gameStatus != FINISHED && state.boardAsList[action.index] == EMPTY
             ) {
                 Observable.just(MoveEffect(index = action.index, player = X))
-            } else {
-                Observable.empty()
-            }
-        }
-
-        private fun makeDummyMove(state: State): Observable<out Effect> {
-            return if (state.gameStatus != FINISHED) {
-                Observable.just(
-                    MoveEffect(
-                        index = DummyPlayer(state.boardAsList).moveDummy(),
-                        player = O
-                    )
-                )
             } else {
                 Observable.empty()
             }
@@ -149,9 +128,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
     private class PostProcessorImpl : PostProcessor<Action, Effect, State> {
         override fun invoke(action: Action, effect: Effect, state: State): Action? {
             return when (effect) {
-                is MoveEffect -> CheckBoard
-                is ChangePlayerEffect -> if (!state.humanPlayer) MachineMove else null
-                is ResetGameEffect -> MachineMove
+                is MoveEffect -> Action.CheckBoard
                 else -> null
             }
         }
@@ -209,5 +186,5 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         }
     }
 
-
 }
+

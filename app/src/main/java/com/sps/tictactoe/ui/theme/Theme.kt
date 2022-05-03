@@ -42,7 +42,7 @@ fun TicTacToeTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composa
     }
 
     MaterialTheme(
-        colors = DarkColorPalette,
+        colors = LightColorPalette,
         typography = Typography,
         shapes = Shapes,
         content = content
