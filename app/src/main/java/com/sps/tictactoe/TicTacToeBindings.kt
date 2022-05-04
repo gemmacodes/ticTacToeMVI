@@ -4,14 +4,12 @@ import androidx.lifecycle.LifecycleOwner
 import com.badoo.binder.using
 import com.badoo.mvicore.android.AndroidBindings
 import com.sps.tictactoe.BoardFeature.*
-import com.sps.tictactoe.HumanFeature.News.HumanMoveFinished
 import com.sps.tictactoe.MachineFeature.News.MachineMoveFinished
 import io.reactivex.functions.Consumer
 
 internal class TicTacToeBindings(
     lifecycleOwner: LifecycleOwner,
     private val boardFeature: BoardFeature,
-    private val humanFeature: HumanFeature,
     private val machineFeature: MachineFeature
 ) : AndroidBindings<MainActivity>(lifecycleOwner) {
 
@@ -42,7 +40,6 @@ internal class TicTacToeBindings(
     object UiEventBoardTransformer : (HumanUiEvent) -> Wish? {
         override fun invoke(event: HumanUiEvent): Wish =
             when (event) {
-                is HumanUiEvent.CellClicked -> Wish.HandleHumanMove(event.index)
                 is HumanUiEvent.ResetClicked -> Wish.ResetGame
             }
     }
@@ -55,22 +52,11 @@ internal class TicTacToeBindings(
             }
     }
 
-    object HumanToBoard : (HumanFeature.News) -> Wish? {
-        override fun invoke(news: HumanFeature.News): Wish =
-            when (news) {
-                is HumanMoveFinished ->
-                    Wish.HandleHumanMove(index = news.index)
-            }
-    }
-
     object BoardToMachine : (News) -> MachineFeature.Wish? {
         override fun invoke(news: News): MachineFeature.Wish? =
             when (news) {
-                is News.MoveFinished ->
-                    if (news.player == TicTacToeVM.PlayedBy.O)
-                        MachineFeature.Wish.StartMachineMove(
-                            news.board
-                        ) else null
+                is News.BoardUpdated ->
+                        MachineFeature.Wish.StartMachineMove(news.board)
                 else -> null
             }
     }
@@ -85,7 +71,6 @@ internal class TicTacToeBindings(
                 else -> {}
             }
         })
-        binder.bind(humanFeature.news to boardFeature using HumanToBoard)
         binder.bind(machineFeature.news to boardFeature using MachineToBoard)
         binder.bind(boardFeature.news to machineFeature using BoardToMachine)
     }
@@ -93,7 +78,6 @@ internal class TicTacToeBindings(
 
 
 sealed class HumanUiEvent {
-    data class CellClicked(val board: List<TicTacToeVM.PlayedBy>, val index: Int) : HumanUiEvent()
     object ResetClicked : HumanUiEvent()
 }
 

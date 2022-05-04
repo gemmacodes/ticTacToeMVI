@@ -30,10 +30,9 @@ import io.reactivex.subjects.PublishSubject
 class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     Consumer<TicTacToeVM> {
     private val boardState = BoardFeature()
-    private val featureState = HumanFeature()
     private val machineState = MachineFeature()
     private val bindings = TicTacToeBindings(
-        this, boardState, featureState, machineState)
+        this, boardState, machineState)
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
     private val subject: PublishSubject<HumanUiEvent> = PublishSubject.create()
 
@@ -75,7 +74,7 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                     ) {
                         viewModel?.let{ vm ->
                             GameBoard(board = vm.board) {
-                                onCellClicked(vm.board.asCellList(), it)
+                                onCellClicked()
                             }
                             ResetButton(::onResetClicked)
                             GameCounter(gameCounter = vm.gameCounter)
@@ -104,8 +103,8 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
         subject.onNext(ResetClicked)
     }
 
-    private fun onCellClicked(board: List<TicTacToeVM.PlayedBy>, cellIndex: Int) {
-        subject.onNext(CellClicked(board, cellIndex))
+    private fun onCellClicked() {
+
     }
 
 }
