@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     Consumer<TicTacToeVM> {
 
     private val featureState = HumanFeature()
-    private val machineState = DummyFeature()
+    private val machineState = MachineFeature()
     private val bindings = TicTacToeBindings(
         this, featureState, machineState, ViewModelTransformer,
         UiEventTransformer
@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     }
 
     private fun onCellClicked(cellIndex: Int) {
-        // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HumanMove(cellIndex))
+        // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HandleHumanMove(cellIndex))
         subject.onNext(CellClicked(cellIndex))
     }
 

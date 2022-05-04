@@ -3,49 +3,24 @@ package com.sps.tictactoe
 import androidx.lifecycle.LifecycleOwner
 import com.badoo.binder.using
 import com.badoo.mvicore.android.AndroidBindings
+import com.sps.tictactoe.MachineFeature.News.*
+import com.sps.tictactoe.MachineFeature.Wish.*
+import com.sps.tictactoe.HumanFeature.*
+import com.sps.tictactoe.HumanFeature.News.*
+import com.sps.tictactoe.HumanFeature.Wish.*
 import io.reactivex.functions.Consumer
-
-//class TicTacToeBindings {
-//
-//    private val humanFeature = HumanFeature()
-//    private val dummyFeature = DummyFeature()
-//
-//    private val binder = Binder()
-//
-//    object HumanToDummy : (HumanFeature.State) -> DummyFeature.Wish? {
-//        override fun invoke(state: HumanFeature.State): DummyFeature.Wish? =
-//            if (!state.humanPlayer) {
-//                DummyFeature.Wish.StartMachineMove(board = state.boardAsList)
-//            } else null
-//    }
-//
-//    object DummyToHuman : (DummyFeature.State) -> HumanFeature.Wish? {
-//        override fun invoke(state: DummyFeature.State): HumanFeature.Wish? =
-//            if (state.index != -1) {
-//                HumanFeature.Wish.StartMachineMove(index = state.index)
-//            } else null
-//    }
-//
-//    fun machineHumanConnection() {
-//        with(binder) {
-//            bind(humanFeature to dummyFeature using HumanToDummy)
-//            bind(dummyFeature to humanFeature using DummyToHuman)
-//        }
-//    }
-//
-//}
 
 internal class TicTacToeBindings(
     lifecycleOwner: LifecycleOwner,
     private val humanFeature: HumanFeature,
-    private val dummyFeature: DummyFeature,
+    private val dummyFeature: MachineFeature,
     private val featureStateToViewModel: ViewModelTransformer,
     private val uiEventToWish: UiEventTransformer,
 ) : AndroidBindings<MainActivity>(lifecycleOwner) {
 
 
-    object ViewModelTransformer : (HumanFeature.State) -> TicTacToeVM {
-        override fun invoke(state: HumanFeature.State): TicTacToeVM =
+    object ViewModelTransformer : (State) -> TicTacToeVM {
+        override fun invoke(state: State): TicTacToeVM =
             TicTacToeVM(
                 board = TicTacToeVM.Board(
                     c1 = state.boardAsList[0],
@@ -66,29 +41,29 @@ internal class TicTacToeBindings(
             )
     }
 
-    object UiEventTransformer : (HumanUiEvent) -> HumanFeature.Wish? {
-        override fun invoke(event: HumanUiEvent): HumanFeature.Wish? =
+    object UiEventTransformer : (HumanUiEvent) -> Wish? {
+        override fun invoke(event: HumanUiEvent): Wish? =
             when (event) {
-                is HumanUiEvent.CellClicked -> HumanFeature.Wish.HumanMove(event.index)
-                is HumanUiEvent.ResetClicked -> HumanFeature.Wish.ResetGame
-                else -> null
+                is HumanUiEvent.CellClicked -> StartHumanMove(event.index)
+                is HumanUiEvent.ResetClicked -> ResetGame
             }
     }
 
-
-    object DummyToHuman : (DummyFeature.State) -> HumanFeature.Wish? {
-        override fun invoke(state: DummyFeature.State): HumanFeature.Wish? =
-            if (state.dummyMoveFinished) {
-                HumanFeature.Wish.HandleMachineMove(index = state.index)
-            } else null
+    object DummyToHuman : (MachineFeature.News) -> HumanFeature.Wish? {
+        override fun invoke(news: MachineFeature.News): Wish =
+            when (news){
+                is MachineMoveFinished ->
+                    HandleMachineMove(index = news.index)
+            }
     }
 
-
-    object HumanToDummy : (HumanFeature.State) -> DummyFeature.Wish? {
-        override fun invoke(state: HumanFeature.State): DummyFeature.Wish? =
-            if (!state.humanPlayer) {
-                DummyFeature.Wish.StartMachineMove(board = state.boardAsList)
-            } else null
+    object HumanToDummy : (HumanFeature.News) -> MachineFeature.Wish? {
+        override fun invoke(news: News): MachineFeature.Wish? =
+            when (news) {
+                is HumanMoveFinished ->
+                    StartMachineMove(board = news.board)
+                else -> null
+            }
     }
 
 
@@ -98,16 +73,16 @@ internal class TicTacToeBindings(
         binder.bind(view to humanFeature using uiEventToWish)
         binder.bind(humanFeature.news to Consumer {
             when (it) {
-                is HumanFeature.News.ResultNews -> view.showResult(it.result)
+                is ResultNews -> view.showResult(it.result)
+                else -> {}
             }
         })
-        binder.bind(humanFeature to dummyFeature using HumanToDummy)
-        binder.bind(dummyFeature to humanFeature using DummyToHuman)
+        binder.bind(humanFeature.news to dummyFeature using HumanToDummy)
+        binder.bind(dummyFeature.news to humanFeature using DummyToHuman)
 
     }
-
-
 }
+
 
 sealed class HumanUiEvent {
     data class CellClicked(val index: Int) : HumanUiEvent()
