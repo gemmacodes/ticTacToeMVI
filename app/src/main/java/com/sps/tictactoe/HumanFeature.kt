@@ -42,7 +42,6 @@ class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
         override fun invoke(state: State, action: Action): Observable<out Effect> {
             return when (action) {
-
                 is Action.Execute -> when (action.wish) {
                     is StartHumanMove -> {
                         makeHumanMove(action.wish)

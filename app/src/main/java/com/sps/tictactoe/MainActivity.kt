@@ -14,12 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.sps.tictactoe.HumanFeature.State.*
-import com.sps.tictactoe.HumanFeature.State.GameResult.*
+import com.sps.tictactoe.BoardFeature.State.*
+import com.sps.tictactoe.BoardFeature.State.GameResult.*
 import com.sps.tictactoe.HumanUiEvent.*
 import com.sps.tictactoe.TicTacToeBindings.*
-//import com.sps.tictactoe.TicTacToeBindings.*
-//import com.sps.tictactoe.TicTacToeUiEvent.*
 import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
@@ -32,12 +30,12 @@ import io.reactivex.subjects.PublishSubject
 
 class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     Consumer<TicTacToeVM> {
-
+    private val boardState = BoardFeature()
     private val featureState = HumanFeature()
     private val machineState = MachineFeature()
     private val bindings = TicTacToeBindings(
-        this, featureState, machineState, ViewModelTransformer,
-        UiEventTransformer
+        this, boardState, featureState, machineState, ViewModelTransformer,
+        UiEventBoardTransformer
     )
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
     private val subject: PublishSubject<HumanUiEvent> = PublishSubject.create()
@@ -81,12 +79,13 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                     ) {
                         viewModel?.let{ vm ->
                             GameBoard(board = vm.board) {
-                                onCellClicked(it)
+                                onCellClicked(vm.board.asCellList(), it)
                             }
                             ResetButton(::onResetClicked)
                             GameCounter(gameCounter = vm.gameCounter)
                         }
                     }
+
 
                 }
             }
@@ -110,9 +109,9 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
         subject.onNext(ResetClicked)
     }
 
-    private fun onCellClicked(cellIndex: Int) {
+    private fun onCellClicked(board: List<TicTacToeVM.PlayedBy>, cellIndex: Int) {
         // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HandleHumanMove(cellIndex))
-        subject.onNext(CellClicked(cellIndex))
+        subject.onNext(CellClicked(board, cellIndex))
     }
 
 }

@@ -29,7 +29,7 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY
         ),
         val gameStatus: GameStatus = READY,
-        val humanPlayer: Boolean = true,
+        val currentPlayer: PlayedBy = X,
         val gameResult: GameResult? = null,
         val gameCounter: GameCounter = GameCounter()
     ) {
@@ -58,7 +58,7 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
     sealed class News {
         data class ResultNews(val result: GameResult) : News()
-        data class HumanMoveFinished(val board: List<PlayedBy>) : News()
+        data class MoveFinished(val board: List<PlayedBy>, val player: PlayedBy) : News()
     }
 
     private class ActorImpl : Actor<State, Action, Effect> {
@@ -69,15 +69,10 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 is Action.Execute -> when (action.wish) {
                     is ResetGame -> Observable.just(ResetGameEffect)
                     is HandleHumanMove -> {
-                        makeHumanMove(state, action.wish)
+                        handleHumanMove(state, action.wish)
                     }
                     is HandleMachineMove -> {
-                        if (state.gameStatus != FINISHED) Observable.just(
-                            MoveEffect(
-                                index = action.wish.index,
-                                player = O
-                            )
-                        ) else Observable.empty()
+                        handleMachineMove(state, action.wish)
                     }
                 }
 
@@ -94,10 +89,18 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
             }
         }
 
-        private fun makeHumanMove(state: State, action: HandleHumanMove): Observable<out Effect> {
+        private fun handleHumanMove(state: State, action: HandleHumanMove): Observable<out Effect> {
             return if (state.gameStatus != FINISHED && state.boardAsList[action.index] == EMPTY
             ) {
                 Observable.just(MoveEffect(index = action.index, player = X))
+            } else {
+                Observable.empty()
+            }
+        }
+
+        private fun handleMachineMove(state: State, action: HandleMachineMove): Observable<out Effect> {
+            return if (state.gameStatus != FINISHED ) {
+                Observable.just(MoveEffect(index = action.index, player = O))
             } else {
                 Observable.empty()
             }
@@ -156,7 +159,7 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 }
 
                 is ChangePlayerEffect -> state.copy(
-                    humanPlayer = !state.humanPlayer
+                    currentPlayer = if (state.currentPlayer == X) O else X
                 )
 
                 is ResultEffect -> state.copy(
@@ -187,7 +190,7 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
     private class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
         override fun invoke(action: Action, effect: Effect, state: State): News? = when (effect) {
             is ResultEffect -> News.ResultNews(effect.result)
-            is ChangePlayerEffect -> News.HumanMoveFinished(effect.updatedBoard)
+            is ChangePlayerEffect -> News.MoveFinished(effect.updatedBoard, state.currentPlayer)
             else -> null
         }
     }
