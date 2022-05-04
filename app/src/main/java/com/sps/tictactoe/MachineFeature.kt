@@ -42,7 +42,10 @@ class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
             is Action.Execute -> when (action.wish) {
                 is StartMachineMove ->
-                    Observable.just(MachineNewMove(moveDummy(action.wish.board)))
+                    if ((action.wish.board).all { item -> item != TicTacToeVM.PlayedBy.EMPTY }){
+                        Observable.empty()
+                    }
+                    else Observable.just(MachineNewMove(moveDummy(action.wish.board)))
             }
         }
 

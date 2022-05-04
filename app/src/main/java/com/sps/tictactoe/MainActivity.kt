@@ -34,9 +34,7 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     private val featureState = HumanFeature()
     private val machineState = MachineFeature()
     private val bindings = TicTacToeBindings(
-        this, boardState, featureState, machineState, ViewModelTransformer,
-        UiEventBoardTransformer
-    )
+        this, boardState, featureState, machineState)
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
     private val subject: PublishSubject<HumanUiEvent> = PublishSubject.create()
 
@@ -105,7 +103,6 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     }
 
     private fun onResetClicked() {
-        // invoke whatever you need here to reset the feature: featureState.accept(TicTacToeFeature.Wish.ResetGame)
         subject.onNext(ResetClicked)
     }
 

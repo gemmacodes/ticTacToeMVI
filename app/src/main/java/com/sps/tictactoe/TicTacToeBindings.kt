@@ -12,9 +12,7 @@ internal class TicTacToeBindings(
     lifecycleOwner: LifecycleOwner,
     private val boardFeature: BoardFeature,
     private val humanFeature: HumanFeature,
-    private val machineFeature: MachineFeature,
-    private val boardStateToViewModel: ViewModelTransformer,
-    private val uiEventToBoardWish: UiEventBoardTransformer
+    private val machineFeature: MachineFeature
 ) : AndroidBindings<MainActivity>(lifecycleOwner) {
 
 
@@ -79,8 +77,8 @@ internal class TicTacToeBindings(
 
 
     override fun setup(view: MainActivity) {
-        binder.bind(boardFeature to view using boardStateToViewModel)
-        binder.bind(view to boardFeature using uiEventToBoardWish)
+        binder.bind(boardFeature to view using ViewModelTransformer)
+        binder.bind(view to boardFeature using UiEventBoardTransformer)
         binder.bind(boardFeature.news to Consumer {
             when (it) {
                 is News.ResultNews -> view.showResult(it.result)
