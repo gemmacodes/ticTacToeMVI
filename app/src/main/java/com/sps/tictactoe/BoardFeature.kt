@@ -1,27 +1,27 @@
 package com.sps.tictactoe
 
-import com.badoo.mvicore.element.Actor
-import com.badoo.mvicore.element.NewsPublisher
-import com.badoo.mvicore.element.PostProcessor
-import com.badoo.mvicore.element.Reducer
+import com.badoo.mvicore.element.*
 import com.badoo.mvicore.feature.BaseFeature
 import com.sps.tictactoe.BoardFeature.*
 import com.sps.tictactoe.BoardFeature.Effect.*
-import com.sps.tictactoe.BoardFeature.State.*
+import com.sps.tictactoe.BoardFeature.State.GameResult
 import com.sps.tictactoe.BoardFeature.State.GameStatus.*
-import com.sps.tictactoe.BoardFeature.Wish.*
+import com.sps.tictactoe.BoardFeature.Wish.HandleMachineMove
+import com.sps.tictactoe.BoardFeature.Wish.ResetGame
 import com.sps.tictactoe.TicTacToeVM.GameCounter
 import com.sps.tictactoe.TicTacToeVM.PlayedBy
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
+import io.reactivex.Observable.just
+import io.reactivex.Single
 
-class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
+class BoardFeature(startSignal: Single<Unit>) : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
     reducer = ReducerImpl(),
     postProcessor = PostProcessorImpl(),
     wishToAction = Action::Execute,
     actor = ActorImpl(),
-    bootstrapper = BootstrapperImpl(),
+    bootstrapper = BootstrapperImpl(startSignal),
     newsPublisher = NewsPublisherImpl(),
 ) {
 
@@ -54,12 +54,21 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
         object ResetGameEffect : Effect()
         data class MoveEffect(val index: Int, val player: PlayedBy) : Effect()
         data class ResultEffect(val result: GameResult) : Effect()
-        data class ChangePlayerEffect(val updatedBoard : List<PlayedBy>) : Effect()
+        data class ChangePlayerEffect(val board: List<PlayedBy>) : Effect()
     }
 
     sealed class News {
         data class ResultNews(val result: GameResult) : News()
         data class BoardUpdated(val board: List<PlayedBy>) : News()
+    }
+
+    class BootstrapperImpl(
+        private val startSignal: Single<Unit>
+    ) : Bootstrapper<Action> {
+        override fun invoke(): Observable<Action> =
+            just<Action>(
+                Action.Execute(HandleMachineMove((0..8).random()))
+            ).delaySubscription(startSignal.toObservable())
     }
 
     private class ActorImpl : Actor<State, Action, Effect> {
@@ -88,8 +97,11 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
         }
 
 
-        private fun handleMachineMove(state: State, action: HandleMachineMove): Observable<out Effect> {
-            return if (state.gameStatus != FINISHED ) {
+        private fun handleMachineMove(
+            state: State,
+            action: HandleMachineMove
+        ): Observable<out Effect> {
+            return if (state.gameStatus != FINISHED) {
                 Observable.just(MoveEffect(index = action.index, player = state.currentPlayer))
             } else {
                 Observable.empty()
@@ -139,7 +151,7 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
                 is MoveEffect -> {
 
                     val mutable = state.boardAsList.toMutableList()
-                    mutable[effect.index] = effect.player
+                    mutable[effect.index] = state.currentPlayer
                     val updatedCellList = mutable.toList()
 
                     state.copy(
@@ -180,7 +192,8 @@ class BoardFeature : BaseFeature<Wish, Action, Effect, State, News>(
     private class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
         override fun invoke(action: Action, effect: Effect, state: State): News? = when (effect) {
             is ResultEffect -> News.ResultNews(effect.result)
-            is ChangePlayerEffect -> News.BoardUpdated(effect.updatedBoard)
+            is ChangePlayerEffect -> News.BoardUpdated(effect.board)
+            is ResetGameEffect -> News.BoardUpdated(TicTacToeVM.Board().asCellList())
             else -> null
         }
     }

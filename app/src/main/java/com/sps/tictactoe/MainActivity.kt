@@ -29,10 +29,12 @@ import io.reactivex.subjects.PublishSubject
 
 class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     Consumer<TicTacToeVM> {
-    private val boardState = BoardFeature()
+    private val startSignal = PublishSubject.create<Unit>()
+    private val boardState = BoardFeature(startSignal.firstOrError())
     private val machineState = MachineFeature()
     private val bindings = TicTacToeBindings(
-        this, boardState, machineState)
+        this, boardState, machineState
+    )
     private var viewModel: TicTacToeVM? by mutableStateOf(null)
     private val subject: PublishSubject<HumanUiEvent> = PublishSubject.create()
 
@@ -80,11 +82,14 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                             GameCounter(gameCounter = vm.gameCounter)
                         }
                     }
-
-
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startSignal.onNext(Unit)
     }
 
     private fun setBindings() {
