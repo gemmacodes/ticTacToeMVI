@@ -39,8 +39,8 @@ internal class TicTacToeBindings(
     }
 
 
-    object UiEventBoardTransformer : (HumanUiEvent) -> BoardFeature.Wish? {
-        override fun invoke(event: HumanUiEvent): BoardFeature.Wish? =
+    object UiEventBoardTransformer : (HumanUiEvent) -> Wish? {
+        override fun invoke(event: HumanUiEvent): Wish =
             when (event) {
                 is HumanUiEvent.CellClicked -> Wish.HandleHumanMove(event.index)
                 is HumanUiEvent.ResetClicked -> Wish.ResetGame
@@ -63,8 +63,8 @@ internal class TicTacToeBindings(
             }
     }
 
-    object BoardToMachine : (BoardFeature.News) -> MachineFeature.Wish? {
-        override fun invoke(news: BoardFeature.News): MachineFeature.Wish? =
+    object BoardToMachine : (News) -> MachineFeature.Wish? {
+        override fun invoke(news: News): MachineFeature.Wish? =
             when (news) {
                 is News.MoveFinished ->
                     if (news.player == TicTacToeVM.PlayedBy.O)

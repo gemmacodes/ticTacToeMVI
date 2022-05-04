@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import com.sps.tictactoe.BoardFeature.State.*
 import com.sps.tictactoe.BoardFeature.State.GameResult.*
 import com.sps.tictactoe.HumanUiEvent.*
-import com.sps.tictactoe.TicTacToeBindings.*
 import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
@@ -65,7 +64,6 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
         setBindings()
         setContent {
             TicTacToeTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
@@ -107,7 +105,6 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
     }
 
     private fun onCellClicked(board: List<TicTacToeVM.PlayedBy>, cellIndex: Int) {
-        // invoke whatever you need here to place a piece in the board: featureState.accept(TicTacToeFeature.Wish.HandleHumanMove(cellIndex))
         subject.onNext(CellClicked(board, cellIndex))
     }
 
