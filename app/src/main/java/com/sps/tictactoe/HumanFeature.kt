@@ -1,11 +1,14 @@
-package com.sps.tictactoe.twoFeatures
+package com.sps.tictactoe
 
-import com.badoo.mvicore.element.*
+import com.badoo.mvicore.element.Actor
+import com.badoo.mvicore.element.NewsPublisher
+import com.badoo.mvicore.element.PostProcessor
+import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
-import com.sps.tictactoe.twoFeatures.HumanFeature.*
-import com.sps.tictactoe.twoFeatures.HumanFeature.Effect.*
-import com.sps.tictactoe.twoFeatures.HumanFeature.State.GameStatus.*
-import com.sps.tictactoe.twoFeatures.HumanFeature.Wish.ResetGame
+import com.sps.tictactoe.HumanFeature.*
+import com.sps.tictactoe.HumanFeature.Effect.*
+import com.sps.tictactoe.HumanFeature.State.GameStatus.*
+import com.sps.tictactoe.HumanFeature.Wish.*
 import com.sps.tictactoe.TicTacToeVM.GameCounter
 import com.sps.tictactoe.TicTacToeVM.PlayedBy
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
@@ -36,7 +39,7 @@ class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
     sealed class Wish {
         object ResetGame : Wish()
         data class HumanMove(val index: Int) : Wish()
-        data class EndMachineMove(val index: Int) : Wish()
+        data class HandleMachineMove(val index: Int) : Wish()
     }
 
     sealed class Action {
@@ -63,11 +66,16 @@ class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
                 is Action.Execute -> when (action.wish) {
                     is ResetGame -> Observable.just(ResetGameEffect)
-                    is Wish.HumanMove -> {
+                    is HumanMove -> {
                         makeHumanMove(state, action.wish)
                     }
-                    is Wish.EndMachineMove -> {
-                        Observable.just(MoveEffect(index = action.wish.index, player = O))
+                    is HandleMachineMove -> {
+                        if (state.gameStatus != FINISHED) Observable.just(
+                            MoveEffect(
+                                index = action.wish.index,
+                                player = O
+                            )
+                        ) else Observable.empty()
                     }
                 }
 
@@ -84,7 +92,7 @@ class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
             }
         }
 
-        private fun makeHumanMove(state: State, action: Wish.HumanMove): Observable<out Effect> {
+        private fun makeHumanMove(state: State, action: HumanMove): Observable<out Effect> {
             return if (state.gameStatus != FINISHED && state.boardAsList[action.index] == EMPTY
             ) {
                 Observable.just(MoveEffect(index = action.index, player = X))
@@ -94,11 +102,6 @@ class HumanFeature : BaseFeature<Wish, Action, Effect, State, News>(
         }
 
         private fun checkBoard(state: State): State.GameResult? {
-            /**
-             *   |0|1|2|
-             *   |3|4|5|
-             *   |6|7|8|
-             */
 
             val resultWin = mutableListOf<List<PlayedBy?>>().apply {
                 add(listOf(state.boardAsList[0], state.boardAsList[1], state.boardAsList[2]))
