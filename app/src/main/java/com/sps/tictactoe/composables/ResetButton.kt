@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.sps.tictactoe.ui.theme.Champagne
 
 @Composable
 fun ResetButton(onResetClicked: () -> Unit) {
@@ -25,7 +26,7 @@ fun ResetButton(onResetClicked: () -> Unit) {
             .clip(CircleShape)
             .border(
                 width = 2.dp,
-                color = Color.Red,
+                color = Champagne,
                 shape = CircleShape
             ),
         onClick = onResetClicked

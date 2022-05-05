@@ -8,19 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-    primary = Color.White,
-    primaryVariant = Purple700,
-    secondary = NeutralGrey,
-    background = Color.Black,
-    surface = Color.Black,
+    primary = SuperLightGrey,
+    primaryVariant = Pine,
+    secondary = Mauve,
+    background = Onyx,
+    surface = Onyx,
 )
 
 private val LightColorPalette = lightColors(
-    primary = Color.Black,
-    primaryVariant = Purple700,
-    secondary = NeutralGrey,
-    background = Color.White,
-    surface = Color.White,
+    primary = Onyx,
+    primaryVariant = Pine,
+    secondary = Mauve,
+    background = SuperLightGrey,
+    surface = SuperLightGrey,
 
 
     /* Other default colors to override
@@ -42,7 +42,7 @@ fun TicTacToeTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composa
     }
 
     MaterialTheme(
-        colors = LightColorPalette,
+        colors = DarkColorPalette,
         typography = Typography,
         shapes = Shapes,
         content = content

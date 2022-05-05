@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.sps.tictactoe.TicTacToeVM
+import com.sps.tictactoe.ui.theme.Mauve
+import com.sps.tictactoe.ui.theme.Pine
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -74,7 +76,7 @@ fun BoardCell(content: TicTacToeVM.PlayedBy, onCellClicked: () -> Unit) {
 }
 
 @Composable
-fun PieceO(color: Color = Color.Blue) {
+fun PieceO(color: Color = Pine) {
     Box(
         modifier = Modifier
             .fillMaxWidth(),
@@ -102,7 +104,7 @@ fun PieceO(color: Color = Color.Blue) {
 }
 
 @Composable
-fun PieceX(color: Color = Color.Red) {
+fun PieceX(color: Color = Mauve) {
     Box(
         modifier = Modifier
             .fillMaxWidth(),

@@ -2,8 +2,8 @@ package com.sps.tictactoe.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val NeutralGrey = Color(0xFF858585)
+val Pine = Color(0xFF60ab9a)
+val Mauve = Color(0xFFba6e6e)
+val Onyx = Color(0xFF3c3c3c)
+val SuperLightGrey = Color(0xFFf5f5f5)
+val Champagne = Color(0xFFFFEB92)

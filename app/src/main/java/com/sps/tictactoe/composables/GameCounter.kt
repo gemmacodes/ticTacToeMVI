@@ -16,16 +16,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sps.tictactoe.MainActivity
 import com.sps.tictactoe.TicTacToeVM
+import com.sps.tictactoe.ui.theme.Champagne
+import com.sps.tictactoe.ui.theme.Mauve
+import com.sps.tictactoe.ui.theme.Onyx
+import com.sps.tictactoe.ui.theme.Pine
 
 @Composable
 fun GameCounter(
     gameCounter: TicTacToeVM.GameCounter,
-    drawColor: Color = Color.Black,
-    xColor: Color = Color.Red,
-    oColor: Color = Color.Blue
+    drawColor: Color = Onyx,
+    xColor: Color = Mauve,
+    oColor: Color = Pine
 ) {
     Surface(
-        color = Color.LightGray,
+        color = Champagne,
         shape = RoundedCornerShape(5.dp)
     ) {
     Row(
@@ -48,7 +52,7 @@ fun SimpleCounter(title: String, count: Int, countColor: Color) {
             modifier = Modifier.padding(horizontal = 10.dp),
             text = title,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colors.primary,
+            color = Onyx,
             fontSize = 20.sp
         )
         Text(

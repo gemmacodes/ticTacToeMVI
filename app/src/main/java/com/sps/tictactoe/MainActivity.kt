@@ -23,6 +23,8 @@ import com.sps.tictactoe.HumanUiEvent.*
 import com.sps.tictactoe.composables.GameBoard
 import com.sps.tictactoe.composables.GameCounter
 import com.sps.tictactoe.composables.ResetButton
+import com.sps.tictactoe.ui.theme.Mauve
+import com.sps.tictactoe.ui.theme.Pine
 import com.sps.tictactoe.ui.theme.TicTacToeTheme
 import io.reactivex.ObservableSource
 import io.reactivex.Observer
@@ -86,13 +88,13 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                             Text(
                                 text = "Tic",
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Red,
+                                color = Mauve,
                                 fontSize = 40.sp
                             )
                             Text(
                                 text = "Tac",
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Blue,
+                                color = Pine,
                                 fontSize = 40.sp
                             )
                             Text(
