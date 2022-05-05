@@ -1,28 +1,39 @@
 package com.sps.tictactoe.composables
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun ResetButton(onResetClicked: () -> Unit) {
     Button(
         modifier = Modifier
-            .height(50.dp)
-            .padding(horizontal = 10.dp)
-            .fillMaxWidth(),
+            .height(75.dp)
+            .padding(top = 10.dp, end = 10.dp)
+            .clip(CircleShape)
+            .border(
+                width = 2.dp,
+                color = Color.Red,
+                shape = CircleShape
+            ),
         onClick = onResetClicked
     ) {
-        Text(
-            text = "Start Again",
-            fontSize = 20.sp
+        Icon(
+            Icons.Rounded.Refresh,
+            contentDescription = "refresh",
+            Modifier.size(30.dp)
         )
     }
 }

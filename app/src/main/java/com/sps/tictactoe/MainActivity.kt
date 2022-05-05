@@ -4,16 +4,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sps.tictactoe.BoardFeature.State.*
 import com.sps.tictactoe.BoardFeature.State.GameResult.*
 import com.sps.tictactoe.HumanUiEvent.*
@@ -69,17 +72,41 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.End
+                    ){
+                        ResetButton(::onResetClicked)
+                    }
                     Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Row(modifier = Modifier.padding(bottom = 20.dp)) {
+                            Text(
+                                text = "Tic",
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Red,
+                                fontSize = 40.sp
+                            )
+                            Text(
+                                text = "Tac",
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Blue,
+                                fontSize = 40.sp
+                            )
+                            Text(
+                                text = "Toe",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colors.primary,
+                                fontSize = 40.sp
+                            )
+                        }
                         viewModel?.let{ vm ->
+                            GameCounter(gameCounter = vm.gameCounter)
                             GameBoard(board = vm.board) {
                                 onCellClicked()
                             }
-                            ResetButton(::onResetClicked)
-                            GameCounter(gameCounter = vm.gameCounter)
                         }
                     }
                 }
