@@ -8,6 +8,8 @@ import com.sps.tictactoe.MachineFeature.*
 import com.sps.tictactoe.MachineFeature.Effect.*
 import com.sps.tictactoe.MachineFeature.Wish.*
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 
 class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
@@ -37,6 +39,7 @@ class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
         data class MachineMoveFinished(val index: Int) : News()
     }
 
+    @Suppress("UNCHECKED_CAST")
     class ActorImpl : Actor<State, Action, Effect> {
         override fun invoke(state: State, action: Action): Observable<Effect> = when (action) {
 
@@ -46,6 +49,8 @@ class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
                         Observable.empty()
                     }
                     else Observable.just(MachineNewMove(moveDummy(action.wish.board)))
+                        .delay(500, TimeUnit.MILLISECONDS)
+                        .observeOn(AndroidSchedulers.mainThread()) as Observable<Effect>
             }
         }
 
