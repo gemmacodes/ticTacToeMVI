@@ -88,19 +88,19 @@ class MainActivity : ComponentActivity(), ObservableSource<HumanUiEvent>,
                                 text = "Tic",
                                 fontWeight = FontWeight.Bold,
                                 color = Mauve,
-                                fontSize = 40.sp
+                                fontSize = 50.sp
                             )
                             Text(
                                 text = "Tac",
                                 fontWeight = FontWeight.Bold,
                                 color = Pine,
-                                fontSize = 40.sp
+                                fontSize = 50.sp
                             )
                             Text(
                                 text = "Toe",
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colors.primary,
-                                fontSize = 40.sp
+                                fontSize = 50.sp
                             )
                         }
                         viewModel?.let{ vm ->

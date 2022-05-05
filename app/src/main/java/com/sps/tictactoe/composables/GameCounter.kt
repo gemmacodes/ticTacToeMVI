@@ -37,7 +37,7 @@ fun GameCounter(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-            SimpleCounter("Draws", gameCounter.draws, drawColor)
+            SimpleCounter("Draw", gameCounter.draws, drawColor)
             SimpleCounter("✳ Wins", gameCounter.xWins, xColor)
             SimpleCounter("⭗ Wins", gameCounter.oWins, oColor)
     }
