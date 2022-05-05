@@ -1,5 +1,6 @@
 package com.sps.tictactoe
 
+import androidx.annotation.MainThread
 import com.badoo.mvicore.element.Actor
 import com.badoo.mvicore.element.Bootstrapper
 import com.badoo.mvicore.element.NewsPublisher
@@ -12,6 +13,9 @@ import com.sps.tictactoe.MachineFeature.Wish.*
 import com.sps.tictactoe.TicTacToeVM.*
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 
 class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
@@ -52,6 +56,8 @@ class MachineFeature : BaseFeature<Wish, Action, Effect, State, News>(
                         Observable.empty()
                     }
                     else Observable.just(MachineNewMove(moveDummy(action.wish.board)))
+                        .delay(500, TimeUnit.MILLISECONDS)
+                        .observeOn(AndroidSchedulers.mainThread()) as Observable<Effect>
             }
         }
 
