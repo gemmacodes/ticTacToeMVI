@@ -11,6 +11,8 @@ import com.sps.tictactoe.TicTacToeVM.GameCounter
 import com.sps.tictactoe.TicTacToeVM.PlayedBy
 import com.sps.tictactoe.TicTacToeVM.PlayedBy.*
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 
 
 class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
@@ -101,6 +103,7 @@ class TicTacToeFeature : BaseFeature<Wish, Action, Effect, State, News>(
         private fun makeDummyMove(state: State): Observable<out Effect> {
             return if (state.gameStatus != FINISHED) {
                 Observable.just(MoveEffect(index = DummyPlayer(state.boardAsList).makeDummyMove(), player = O))
+                    .delay(1000,TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread())
             } else {
                 Observable.empty()
             }
