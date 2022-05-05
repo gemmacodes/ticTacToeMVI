@@ -31,7 +31,7 @@ import com.sps.tictactoe.ui.theme.Pine
 fun GameBoard(board: TicTacToeVM.Board, onCellClicked: (Int) -> Unit) {
     val cells = board.asCellList()
     LazyVerticalGrid(
-        modifier = Modifier.padding(10.dp),
+        modifier = Modifier.padding(horizontal=10.dp, vertical = 20.dp),
         cells = GridCells.Fixed(3),
         contentPadding = PaddingValues(vertical = 3.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
