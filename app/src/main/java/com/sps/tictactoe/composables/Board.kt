@@ -20,10 +20,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.sps.tictactoe.TicTacToeVM
 import com.sps.tictactoe.ui.theme.Mauve
@@ -132,18 +130,13 @@ fun PieceX(color: Color = Mauve) {
         contentAlignment = Alignment.Center,
     ) {
         val animateFloat = remember { Animatable(0f) }
-        LaunchedEffect(animateFloat) {
+
+        LaunchedEffect(Unit) {
             animateFloat.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(durationMillis = 250, easing = LinearEasing))
         }
 
-        val animateFloat2 = remember { Animatable(1f) }
-        LaunchedEffect(animateFloat2) {
-            animateFloat.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(durationMillis = 250, delayMillis = 250, easing = LinearEasing))
-        }
 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
@@ -172,7 +165,7 @@ fun PieceX(color: Color = Mauve) {
                     x = ((3 * canvasWidth) / 4f) * animateFloat.value,
                     y = ((3 * canvasHeight) / 4f) * animateFloat.value
                 ),
-                color = Mauve,
+                color = color,
                 strokeWidth = rectW
             )
 
